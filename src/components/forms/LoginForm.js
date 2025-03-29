@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Context } from '../../store/context';
 
 export default function LoginForm() {
+  const { actions } = useContext(Context);
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     emailLogin: '',
     passwordLogin: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [backendError, setBackendError] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setBackendError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validaciones simples (puedes mejorarlas)
     const newErrors = {};
     if (!form.emailLogin) newErrors.emailLogin = 'El correo es obligatorio';
     if (!form.passwordLogin) newErrors.passwordLogin = 'La contraseña es obligatoria';
@@ -25,12 +31,19 @@ export default function LoginForm() {
       return;
     }
 
-    // Aquí llamas a tu backend (ej: fetch("/api/login", {...}))
-    console.log("Iniciando sesión con:", form);
+    const response = await actions.login(form.emailLogin, form.passwordLogin);
+
+    if (!response.success) {
+      setBackendError(response.message);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {backendError && <div className="alert alert-danger">{backendError}</div>}
+
       <div className="mb-3">
         <label htmlFor="emailLogin" className="form-label">Correo Electrónico</label>
         <input
@@ -57,7 +70,7 @@ export default function LoginForm() {
         {errors.passwordLogin && <div className="text-danger">{errors.passwordLogin}</div>}
       </div>
 
-      <button type="submit" className="btn btn-primary">Ingresar</button>
+      <button type="submit" className="btn btn-primary w-100">Ingresar</button>
     </form>
   );
 }

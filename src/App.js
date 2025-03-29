@@ -4,6 +4,8 @@ import NavigationBar from "./components/layout/NavigationBar";
 import injectContext from "./store/context";
 import LoginPage from "./views/login/LoginPage";
 import HomePage from "./views/home/HomePage";
+import ProfilePage from "./views/profile/ProfilePage";
+
 
 
 
@@ -18,6 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage/>} />
         </Routes>
       </main>
 
