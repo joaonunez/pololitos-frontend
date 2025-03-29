@@ -3,6 +3,7 @@ const getState = ({ getActions, getStore, setStore }) => {
     store: {
       user: JSON.parse(localStorage.getItem("user")) || null, // Cargar el usuario desde localStorage
       services: null,
+      categories: null,
     },
     actions: {
       // Guarda el usuario en el store y localStorage
@@ -94,8 +95,36 @@ const getState = ({ getActions, getStore, setStore }) => {
       // Logout
       logout: () => {
         localStorage.removeItem("user");
-        setStore({ user: null }); 
+        setStore({ user: null });
       },
+      getPublicServices: async () => {
+        try {
+          const response = await fetch("http://localhost:8080/api/services/public");
+          if (!response.ok) throw new Error("Failed to fetch services");
+      
+          const data = await response.json();
+          setStore({ services: data });
+          return data;
+        } catch (error) {
+          console.error("Error loading services:", error);
+          return null;
+        }
+      },
+
+      getCategoryService: async () => {
+        try {
+          const response = await fetch("http://localhost:8080/api/categories");
+          if (!response.ok) throw new Error("Failed to fetch categories");
+      
+          const data = await response.json();
+          setStore({ categories: data });
+          return data;
+        } catch (error) {
+          console.error("Error loading categories:", error);
+          return null;
+        }
+      },
+      
     },
   };
 };
