@@ -1,33 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
-import ProfileCard from '../../components/cards/ProfileCard';
-import defaultProfileImage from '../../assets/img/default-profile-image.png';
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { Context } from "../../store/context";
+import ProfileCard from "../../components/cards/ProfileCard";
+
+
 const ProfilePage = () => {
-  const [usuario, setUsuario] = useState({
-    fotoPerfil: '',
-    nombre: '',
-    apellido: '',
-    ciudad: '',
-    telefono: '',
+  const { store } = useContext(Context); // Obtener el estado del store
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState({
+    profileImage: '',
+    firstName: '',
+    lastName: '',
+    city: '',
+    phone: '',
     email: ''
   });
 
   useEffect(() => {
-    // Simulamos la carga de datos del usuario (reemplazar con la llamada real a la API)
-    const fetchUserData = async () => {
-      setUsuario({
-        fotoPerfil: defaultProfileImage, // Reemplazar por la URL real de la imagen
-        nombre: 'Joao',
-        apellido: 'Nuñez',
-        ciudad: 'Santiago',
-        telefono: '930344503',
-        email: 'joaovaldiglesias@gmail.com',
+    if (!store.user) {
+        navigate('/login');
+    } else {
+      // Si está logeado, tomamos los datos del usuario del store
+      const { profileImage, firstName, lastName, city, phone, email } = store.user;
+      setUserData({
+        profileImage: profileImage,
+        firstName,
+        lastName,
+        city,
+        phone,
+        email,
       });
-    };
+    }
+  }, [store.user, navigate]);
 
-    fetchUserData();
-  }, []);
-
+  // Confirmación de edición de perfil
   const confirmarEdicion = () => {
     Swal.fire({
       title: '¿Editar tu perfil?',
@@ -40,14 +48,14 @@ const ProfilePage = () => {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = '/editarPerfil'; // Cambia esta ruta según sea necesario
+        window.location.href = '/editarPerfil'; // Redirige a la página de edición
       }
     });
   };
 
   return (
     <div className="container my-5">
-      <ProfileCard usuario={usuario} onEdit={confirmarEdicion} />
+      <ProfileCard user={userData} onEdit={confirmarEdicion} />
     </div>
   );
 };

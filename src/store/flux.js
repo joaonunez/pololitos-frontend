@@ -1,13 +1,14 @@
 const getState = ({ getActions, getStore, setStore }) => {
   return {
     store: {
-      user: null,
+      user: JSON.parse(localStorage.getItem("user")) || null, // Cargar el usuario desde localStorage
       services: null,
     },
-
     actions: {
-      // Guarda el usuario en el store
-      setUser: async (user) => {
+      // Guarda el usuario en el store y localStorage
+      setUser: (user) => {
+        // Almacenar el usuario y el token en localStorage
+        localStorage.setItem("user", JSON.stringify(user)); // Guardar en el localStorage
         setStore({ user });
       },
 
@@ -19,10 +20,10 @@ const getState = ({ getActions, getStore, setStore }) => {
             {
               method: "POST",
               headers: {
-                "Content-Type": "application/json", // Asegúrate de que el contenido sea JSON
+                "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                emailLogin: email,  // Usar JSON.stringify para enviar los datos como JSON
+                emailLogin: email,
                 passwordLogin: password,
               }),
             }
@@ -35,7 +36,7 @@ const getState = ({ getActions, getStore, setStore }) => {
 
           const data = await response.json();
 
-          // Almacena toda la información del usuario en el store
+          // Almacenar toda la información del usuario y el token en el store y en localStorage
           setStore({
             user: {
               email: data.email,
@@ -43,97 +44,57 @@ const getState = ({ getActions, getStore, setStore }) => {
               lastName: data.lastName,
               profileImage: data.profileImage,
               phone: data.phone,
-              city: data.city
-            }
+              city: data.city,
+              token: data.token,
+            },
           });
 
+          // Guardar en localStorage
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              email: data.email,
+              firstName: data.firstName,
+              lastName: data.lastName,
+              profileImage: data.profileImage,
+              phone: data.phone,
+              city: data.city,
+              token: data.token,
+            })
+          );
           return { success: true, data };
         } catch (error) {
           console.error("Error al iniciar sesión:", error);
           return { success: false, message: error.message };
         }
       },
-      // Registro con imagen (FormData)
-      register: async (user, file) => {
-        try {
-          const formData = new FormData();
-          for (const key in user) {
-            formData.append(key, user[key]);
-          }
-          if (file) {
-            formData.append("fotoPerfilArchivo", file);
-          }
+      // Obtener datos del perfil desde el store (sin necesidad de hacer una nueva petición)
+      getProfileData: () => {
+        const { user } = getStore(); // Obtén el usuario desde el store
+        // Si no hay un usuario logeado, redirigir al login
+        if (!user) {
+          window.location.href = "/login"; // Cambiarlo por navigate('/login') si se usa react-router-dom
+          return;
+        }
+        // Si el usuario está logeado, simplemente retornamos los datos del perfil
+        return { success: true, data: user };
+      },
 
-          const response = await fetch(
-            "http://localhost:8080/api/users/registro",
-            {
-              method: "POST",
-              body: formData,
-            }
-          );
+      // Verificar el token al recargar la página y obtener el usuario
+      verifyToken: () => {
+        const user = JSON.parse(localStorage.getItem("user"));
 
-          if (!response.ok) {
-            const err = await response.text();
-            throw new Error(err || "Registro fallido");
-          }
-
-          const data = await response.json();
-          setStore({ user: data });
-          return { success: true, data };
-        } catch (error) {
-          console.error("Error al registrarse:", error);
-          return { success: false, message: error.message };
+        if (user && user.token) {
+          return true;
+        } else {
+          return false;
         }
       },
 
-      // Obtener perfil
-      getProfileData: async (userId) => {
-        try {
-          const response = await fetch(
-            `http://localhost:8080/api/users/${userId}/perfil`
-          );
-          if (!response.ok) throw new Error("No se pudo cargar el perfil");
-
-          const data = await response.json();
-          return { success: true, data };
-        } catch (error) {
-          console.error("Error al obtener perfil:", error);
-          return { success: false, message: error.message };
-        }
-      },
-
-      // Actualizar perfil (con imagen opcional)
-      actualizarPerfil: async (usuarioId, usuarioActualizado, nuevaImagen) => {
-        try {
-          const formData = new FormData();
-          for (const key in usuarioActualizado) {
-            formData.append(key, usuarioActualizado[key]);
-          }
-          if (nuevaImagen) {
-            formData.append("fotoPerfilArchivo", nuevaImagen);
-          }
-
-          const response = await fetch(
-            `http://localhost:8080/api/users/${usuarioId}/perfil`,
-            {
-              method: "PATCH",
-              body: formData,
-            }
-          );
-
-          if (!response.ok) throw new Error("Error al actualizar perfil");
-
-          const data = await response.json();
-          setStore({ user: data });
-          return { success: true, data };
-        } catch (error) {
-          console.error("Error al actualizar perfil:", error);
-          return { success: false, message: error.message };
-        }
-      },
-
+      // Logout
       logout: () => {
-        setStore({ user: null });
+        localStorage.removeItem("user");
+        setStore({ user: null }); 
       },
     },
   };

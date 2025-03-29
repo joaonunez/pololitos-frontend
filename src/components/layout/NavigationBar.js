@@ -27,7 +27,7 @@ export default function NavigationBar() {
 
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav me-auto mb-2 mb-lg-0 container-fluid">
-          <li className="nav-item"><Link className="nav-link" to="/servicios">Servicios</Link></li>
+          <li className="nav-item"><Link className="nav-link" to="/services">Servicios</Link></li>
           {user && (
             <>
               <li className="nav-item"><Link className="nav-link" to="/mis-servicios">Mis Servicios</Link></li>

@@ -5,26 +5,24 @@ import injectContext from "./store/context";
 import LoginPage from "./views/login/LoginPage";
 import HomePage from "./views/home/HomePage";
 import ProfilePage from "./views/profile/ProfilePage";
-
-
-
-
+import ServicesPage from "./views/services/ServicesPage";
 
 
 function App() {
   return (
     <BrowserRouter>
-      <NavigationBar />
-
-      <main className="flex-grow-1">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/profile" element={<ProfilePage/>} />
-        </Routes>
-      </main>
-
-      <Footer />
+      <div className="d-flex flex-column min-vh-100">
+        <NavigationBar />
+        <main className="flex-grow-1">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/services" element={<ServicesPage />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }
