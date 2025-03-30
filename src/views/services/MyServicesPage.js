@@ -7,26 +7,15 @@ import ConfirmDeleteService from "../../components/modals/ConfirmDeleteService";
 export default function MyServicesPage() {
   const { store, actions } = useContext(Context);
   const [myServices, setMyServices] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMyServices = async () => {
-      const allServices = store.services || (await actions.getPublicServices());
-      const user = store.user;
-
-      if (!user) return;
-
-      const filtered = allServices?.filter(
-        (s) => s.userFullName === `${user.firstName} ${user.lastName}`
-      );
-
-      setMyServices(filtered || []);
-    };
-
-    fetchMyServices();
+    loadPage(0);
 
     if (location.state?.updated) {
       Swal.fire({
@@ -39,19 +28,28 @@ export default function MyServicesPage() {
       });
       navigate(location.pathname, { replace: true });
     }
-  }, [store.user, store.services]);
-  if (location.state?.created) {
-    Swal.fire({
-      icon: "success",
-      title: "¡Servicio publicado!",
-      text: "Tu servicio fue publicado exitosamente.",
-      confirmButtonColor: "#198754",
-      background: "#1e1e1e",
-      color: "#fff",
-    });
 
-    navigate(location.pathname, { replace: true });
-  }
+    if (location.state?.created) {
+      Swal.fire({
+        icon: "success",
+        title: "¡Servicio publicado!",
+        text: "Tu servicio fue publicado exitosamente.",
+        confirmButtonColor: "#198754",
+        background: "#1e1e1e",
+        color: "#fff",
+      });
+      navigate(location.pathname, { replace: true });
+    }
+  }, []);
+
+  const loadPage = async (page) => {
+    const result = await actions.getMyServicesPaginated(page);
+    if (result.success) {
+      setMyServices(result.data.content);
+      setTotalPages(result.data.totalPages);
+      setCurrentPage(result.data.number);
+    }
+  };
 
   return (
     <div className="d-flex flex-column">
@@ -71,19 +69,14 @@ export default function MyServicesPage() {
                       alt={servicio.name}
                     />
                   </a>
-
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title text-truncate">
-                      {servicio.name}
-                    </h5>
+                    <h5 className="card-title text-truncate">{servicio.name}</h5>
                     <p className="card-text mb-1">
-                      <strong>Precio:</strong> $
-                      {servicio.price.toLocaleString("es-CL")}
+                      <strong>Precio:</strong> ${servicio.price.toLocaleString("es-CL")}
                     </p>
                     <p className="card-text">
                       <small>Autor: {servicio.userFullName}</small>
                     </p>
-
                     <div className="mt-auto">
                       <div className="d-flex flex-column gap-2">
                         <a
@@ -116,6 +109,21 @@ export default function MyServicesPage() {
           </div>
         ) : (
           <p className="text-center fs-5">No tienes servicios publicados.</p>
+        )}
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="text-center mt-4">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                className={`btn btn-sm mx-1 ${i === currentPage ? "btn-light" : "btn-outline-light"}`}
+                onClick={() => loadPage(i)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
         )}
 
         <div className="text-center mt-4">

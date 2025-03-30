@@ -14,33 +14,29 @@ export default function EditServicePage() {
   useEffect(() => {
     const fetchData = async () => {
       const user = store.user;
-
       if (!user) {
         navigate("/login");
         return;
       }
 
-      const allServices = await actions.getPublicServices();
       const allCategories = await actions.getCategoryService();
+      const fetchedService = await actions.getServiceById(id);
 
-      if (!store.services) return; // Esperá a que se carguen primero
-
-      const foundService = store.services.find((s) => s.id === parseInt(id));
-      if (!foundService) {
+      if (!fetchedService) {
         navigate("/");
         return;
       }
 
-      // Validar si el usuario actual es el autor
-      const isAuthor =
-        `${user.firstName} ${user.lastName}` === foundService.userFullName;
+      // Validar si el usuario actual es el autor del servicio
+      const isAuthor = user.id === fetchedService.userId;
+
 
       if (!isAuthor) {
         navigate("/");
         return;
       }
 
-      setService(foundService);
+      setService(fetchedService);
       setCategories(allCategories || []);
     };
 

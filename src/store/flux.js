@@ -2,7 +2,6 @@ const getState = ({ getActions, getStore, setStore }) => {
   return {
     store: {
       user: JSON.parse(localStorage.getItem("user")) || null, // Cargar el usuario desde localStorage
-      services: null,
       categories: null,
     },
     actions: {
@@ -37,38 +36,27 @@ const getState = ({ getActions, getStore, setStore }) => {
 
           const data = await response.json();
 
-          // Almacenar toda la información del usuario y el token en el store y en localStorage
-          setStore({
-            user: {
-              email: data.email,
-              firstName: data.firstName,
-              lastName: data.lastName,
-              profileImage: data.profileImage,
-              phone: data.phone,
-              city: data.city,
-              token: data.token,
-            },
-          });
+          const user = {
+            id: data.id,
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            profileImage: data.profileImage,
+            phone: data.phone,
+            city: data.city,
+            token: data.token,
+          };
 
-          // Guardar en localStorage
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              email: data.email,
-              firstName: data.firstName,
-              lastName: data.lastName,
-              profileImage: data.profileImage,
-              phone: data.phone,
-              city: data.city,
-              token: data.token,
-            })
-          );
+          setStore({ user });
+          localStorage.setItem("user", JSON.stringify(user));
+
           return { success: true, data };
         } catch (error) {
           console.error("Error al iniciar sesión:", error);
           return { success: false, message: error.message };
         }
       },
+
       // Obtener datos del perfil desde el store (sin necesidad de hacer una nueva petición)
       getProfileData: () => {
         const { user } = getStore(); // Obtén el usuario desde el store
@@ -97,27 +85,10 @@ const getState = ({ getActions, getStore, setStore }) => {
         localStorage.removeItem("user");
         setStore({ user: null });
       },
-      getPublicServices: async () => {
-        const store = getStore();
-        if (store.services && store.services.length > 0) {
-          return store.services; // Ya están cargados
-        }
-
-        try {
-          const response = await fetch(
-            "http://localhost:8080/api/services/public"
-          );
-          if (!response.ok) throw new Error("Failed to fetch services");
-
-          const data = await response.json();
-          setStore({ services: data });
-          return data;
-        } catch (error) {
-          console.error("Error loading services:", error);
-          return null;
-        }
-      },
       getCategoryService: async () => {
+        const store = getStore();
+        if (store.categories) return store.categories;
+
         try {
           const response = await fetch("http://localhost:8080/api/categories");
           if (!response.ok) throw new Error("Failed to fetch categories");
@@ -130,95 +101,48 @@ const getState = ({ getActions, getStore, setStore }) => {
           return null;
         }
       },
+
       updateService: async (serviceId, formData) => {
         const store = getStore();
         const token = store.user?.token;
-
-        if (!token) {
-          console.error("No hay token, usuario no autenticado");
-          return { success: false, message: "No autenticado" };
-        }
+        if (!token) return { success: false, message: "No autenticado" };
 
         try {
           const response = await fetch(
             `http://localhost:8080/api/services/update/${serviceId}`,
             {
               method: "PATCH",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
               body: formData,
             }
           );
 
-          if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error);
-          }
+          if (!response.ok) throw new Error(await response.text());
 
-          // ✅ Esperamos confirmación, no importa si responde el servicio o solo un OK
-          await response.text(); // puede ser vacío o mensaje simple
-
-          // ✅ Tomamos los datos ya enviados y actualizamos el store
-          const updatedService = {
-            id: serviceId,
-            name: formData.get("name"),
-            description: formData.get("description"),
-            price: parseFloat(formData.get("price")),
-            city: formData.get("city"),
-            imageUrl: store.services.find((s) => s.id === serviceId)?.imageUrl, // en caso de no cambiarla
-            categoryId: parseInt(formData.get("category.id")),
-            userFullName: store.user.firstName + " " + store.user.lastName,
-          };
-
-          // Si el usuario subió nueva imagen, se asumirá que la URL cambió
-          if (formData.get("image")) {
-            // Esto debería actualizarse con la nueva URL que normalmente devuelve el backend,
-            // pero si el backend no responde nada útil, se deja igual
-            // o podrías decidir volver a hacer `getPublicServices()`
-          }
-
-          const updatedList = store.services.map((s) =>
-            s.id === serviceId ? { ...s, ...updatedService } : s
-          );
-
-          setStore({ services: structuredClone(updatedList) });
-
-          return { success: true, data: updatedService };
+          // Si el backend no devuelve el objeto, podrías volver a pedir la página actual si quieres
+          return { success: true };
         } catch (error) {
-          console.error("Error al actualizar el servicio:", error);
+          console.error("Error al actualizar:", error);
           return { success: false, message: error.message };
         }
       },
       deleteService: async (id) => {
         const store = getStore();
         const token = store.user?.token;
-
-        if (!token) {
-          console.error("No autenticado");
-          return { success: false, message: "Token requerido" };
-        }
+        if (!token) return { success: false, message: "Token requerido" };
 
         try {
           const res = await fetch(
             `http://localhost:8080/api/services/delete/${id}`,
             {
               method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
 
-          if (!res.ok) {
-            const err = await res.text();
-            throw new Error(err);
-          }
+          if (!res.ok) throw new Error(await res.text());
 
-          // 💡 Actualiza el store
-          const updatedList = store.services.filter((s) => s.id !== id);
-          setStore({ services: updatedList });
-
+          // La vista puede volver a cargar la página actual
           return { success: true };
         } catch (err) {
           console.error("Error al eliminar:", err);
@@ -228,52 +152,95 @@ const getState = ({ getActions, getStore, setStore }) => {
       createService: async (formData) => {
         const store = getStore();
         const token = store.user?.token;
-      
-        if (!token) {
-          return { success: false, message: "No autenticado" };
-        }
-      
+        if (!token) return { success: false, message: "No autenticado" };
+
         try {
           const response = await fetch(
             "http://localhost:8080/api/services/post-service",
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                // No pongas Content-Type, el navegador lo arma solo para FormData
-              },
+              headers: { Authorization: `Bearer ${token}` },
               body: formData,
             }
           );
-      
-          if (!response.ok) {
-            const error = await response.text();
-            throw new Error(error);
-          }
-      
+
+          if (!response.ok) throw new Error(await response.text());
+
           const newService = await response.json();
-      
-          const updatedServices = [...(store.services || []), newService];
-      
-          // Si además tenés un array `myServices`, actualízalo también:
-          const userFullName = `${store.user.firstName} ${store.user.lastName}`;
-          const isMine = newService.userFullName === userFullName;
-          const updatedMyServices = isMine
-            ? [...(store.myServices || []), newService]
-            : store.myServices;
-      
-          setStore({
-            services: updatedServices,
-            myServices: updatedMyServices,
-          });
-      
+
+          // No setStore — la vista puede hacer push manual o recargar
           return { success: true, data: newService };
         } catch (error) {
           console.error("Error al crear servicio:", error);
           return { success: false, message: error.message };
         }
       },
-      
+      getPaginatedServices: async (page = 0, size = 8) => {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/services/paginated?page=${page}&size=${size}`
+          );
+          if (!response.ok)
+            throw new Error("Failed to fetch paginated services");
+
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error al cargar servicios paginados:", error);
+          return null;
+        }
+      },
+      getMyServicesPaginated: async (page = 0, size = 8) => {
+        const store = getStore();
+        const token = store.user?.token;
+
+        if (!token) return { success: false, message: "No autenticado" };
+
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/services/my-services?page=${page}&size=${size}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok)
+            throw new Error("Error al obtener servicios del usuario");
+
+          const data = await response.json();
+          return { success: true, data };
+        } catch (error) {
+          console.error("Error al obtener servicios del usuario:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      getServiceById: async (id) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return null;
+
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/services/my-service/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) throw new Error("No autorizado o no encontrado");
+
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error al obtener servicio por ID:", error);
+          return null;
+        }
+      },
     },
   };
 };

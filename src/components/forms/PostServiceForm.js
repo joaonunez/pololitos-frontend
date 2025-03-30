@@ -4,7 +4,6 @@ import { Context } from "../../store/context";
 
 export default function PostServiceForm({ categories }) {
   const { actions } = useContext(Context);
-  
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -41,8 +40,8 @@ export default function PostServiceForm({ categories }) {
     payload.append("description", formData.description);
     payload.append("price", formData.price);
     payload.append("city", formData.city);
-    payload.append("category.id", formData.categoryId);
-    if (formData.image) payload.append("file", formData.image); // usa "file" como en el backend
+    payload.append("categoryId", formData.categoryId); // ✅ cambio aquí
+    if (formData.image) payload.append("file", formData.image);
 
     const response = await actions.createService(payload);
 
