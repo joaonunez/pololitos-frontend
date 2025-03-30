@@ -9,28 +9,17 @@ export default function ProfileServicePage() {
 
   useEffect(() => {
     const loadService = async () => {
-      let allServices = store.services;
-  
-      // Si no hay servicios en el store, intenta cargarlos
-      if (!allServices || allServices.length === 0) {
-        allServices = await actions.getPublicServices();
-      }
-  
-      if (allServices && allServices.length > 0) {
-        const found = allServices.find((s) => s.id === parseInt(id));
-        setService(found || null);
-      }
+      const fetchedService = await actions.getPublicServiceById(id);
+      setService(fetchedService || null);
     };
-  
+
     loadService();
-  }, [store.services, id]);
-  
-  
+  }, [id]);
 
   if (!service) return <p className="text-white text-center">Cargando servicio...</p>;
 
   const user = store.user;
-  const isAuthor = user && `${user.firstName} ${user.lastName}` === service.userFullName;
+  const isAuthor = user && user.id === service.userId;
 
   return (
     <div className="container py-4 text-white">
