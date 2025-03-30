@@ -70,9 +70,12 @@ export default function MyServicesPage() {
                     />
                   </a>
                   <div className="card-body d-flex flex-column">
-                    <h5 className="card-title text-truncate">{servicio.name}</h5>
+                    <h5 className="card-title text-truncate">
+                      {servicio.name}
+                    </h5>
                     <p className="card-text mb-1">
-                      <strong>Precio:</strong> ${servicio.price.toLocaleString("es-CL")}
+                      <strong>Precio:</strong> $
+                      {servicio.price.toLocaleString("es-CL")}
                     </p>
                     <p className="card-text">
                       <small>Autor: {servicio.userFullName}</small>
@@ -117,7 +120,9 @@ export default function MyServicesPage() {
             {[...Array(totalPages)].map((_, i) => (
               <button
                 key={i}
-                className={`btn btn-sm mx-1 ${i === currentPage ? "btn-light" : "btn-outline-light"}`}
+                className={`btn btn-sm mx-1 ${
+                  i === currentPage ? "btn-light" : "btn-outline-light"
+                }`}
                 onClick={() => loadPage(i)}
               >
                 {i + 1}
@@ -133,11 +138,14 @@ export default function MyServicesPage() {
         </div>
       </main>
 
-      {/* Modal para confirmar eliminación */}
       <ConfirmDeleteService
         show={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         serviceId={serviceToDelete}
+        onServiceDeleted={() => {
+          setServiceToDelete(null);
+          loadPage(currentPage); // Esto se ejecutará ahora correctamente
+        }}
       />
     </div>
   );

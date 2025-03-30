@@ -3,7 +3,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { Context } from "../../store/context";
 import Swal from "sweetalert2";
 
-export default function ConfirmDeleteService({ show, onClose, serviceId }) {
+export default function ConfirmDeleteService({ show, onClose, serviceId, onServiceDeleted }) {
   const { actions } = useContext(Context);
   const [input, setInput] = useState("");
 
@@ -31,6 +31,9 @@ export default function ConfirmDeleteService({ show, onClose, serviceId }) {
         background: "#1e1e1e",
         color: "#fff",
       });
+
+      setInput(""); // Limpiar input
+      onServiceDeleted?.(serviceId); // 🔥 Ejecutar callback si existe
     } else {
       Swal.fire({
         icon: "error",
@@ -42,7 +45,6 @@ export default function ConfirmDeleteService({ show, onClose, serviceId }) {
       });
     }
 
-    setInput(""); // Limpiar input
     onClose(); // Cerrar modal
   };
 
@@ -59,7 +61,10 @@ export default function ConfirmDeleteService({ show, onClose, serviceId }) {
       <Modal.Body className="bg-dark text-white">
         <p>
           Esta acción <strong>no se puede deshacer</strong>. Para confirmar,
-          escribe: <span className="text-warning fw-bold">quiero borrar mi servicio</span>
+          escribe:{" "}
+          <span className="text-warning fw-bold">
+            quiero borrar mi servicio
+          </span>
         </p>
         <Form.Control
           type="text"
