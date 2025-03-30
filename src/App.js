@@ -7,6 +7,9 @@ import HomePage from "./views/home/HomePage";
 import ProfilePage from "./views/profile/ProfilePage";
 import ServicesPage from "./views/services/ServicesPage";
 import MyServicesPage from "./views/services/MyServicesPage";
+import ProfileServicePage from "./views/services/ProfileServicePage";
+import EditServicePage from "./views/services/EditServicePage";
+import PostServicePage from "./views/services/PostServicePage";
 
 
 function App() {
@@ -21,6 +24,10 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/my-services" element={<MyServicesPage />} />
+            <Route path="/service/details/:id" element={<ProfileServicePage />} />
+            <Route path="/service/edit/:id" element={<EditServicePage />} />
+            <Route path="/post-service/" element={<PostServicePage />} />
+
 
           </Routes>
         </main>

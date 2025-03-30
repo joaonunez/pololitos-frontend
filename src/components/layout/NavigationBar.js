@@ -72,7 +72,7 @@ export default function NavigationBar() {
                 <Link to="/profile">
                   <img src={user.profileImage || defaultProfileImage} alt="Perfil" width="40" height="40" className="rounded-circle" />
                 </Link>
-                <Link to="/servicios/publicar" className="btn btn-success">Crear Servicio</Link>
+                <Link to="/post-service" className="btn btn-success">Crear Servicio</Link>
                 <button onClick={handleLogout} className="btn btn-danger">Cerrar Sesión</button>
               </>
             )}

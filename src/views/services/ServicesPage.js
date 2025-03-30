@@ -12,7 +12,6 @@ export default function ServicesPage() {
     const fetchData = async () => {
       const fetchedCategories = await actions.getCategoryService();
       const fetchedServices = await actions.getPublicServices();
-
       setCategories(fetchedCategories || []);
       setServices(fetchedServices || []);
     };

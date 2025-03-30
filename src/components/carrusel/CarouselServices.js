@@ -27,7 +27,7 @@ const CarouselServices = ({ categoryName, services }) => {
                     <div className="card-body d-flex flex-column">
                       <h5 className="card-title text-truncate">{service.name}</h5>
                       <p className="card-text mb-1">
-                        <strong>Price:</strong> ${service.price.toLocaleString("es-CL")}
+                        <strong>Precio:</strong> ${service.price.toLocaleString("es-CL")}
                       </p>
                       <p className="card-text">
                         <small>
@@ -39,7 +39,7 @@ const CarouselServices = ({ categoryName, services }) => {
                           href={`/service/details/${service.id}`}
                           className="btn btn-primary btn-sm me-2 mb-2"
                         >
-                          <i className="bi bi-hand-index-thumb"></i> Request Service
+                          <i className="bi bi-hand-index-thumb"></i> Solicitar Servicio
                         </a>
                         <br />
                         <button
@@ -50,7 +50,7 @@ const CarouselServices = ({ categoryName, services }) => {
                             )
                           }
                         >
-                          <i className="bi bi-chat-dots"></i> Contact
+                          <i className="bi bi-chat-dots"></i> Contactar
                         </button>
                       </div>
                     </div>

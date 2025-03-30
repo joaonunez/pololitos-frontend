@@ -1,31 +1,57 @@
 import React, { useEffect, useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Context } from "../../store/context";
+import ConfirmDeleteService from "../../components/modals/ConfirmDeleteService";
 
 export default function MyServicesPage() {
   const { store, actions } = useContext(Context);
   const [myServices, setMyServices] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMyServices = async () => {
-      const allServices = await actions.getPublicServices();
+      const allServices = store.services || (await actions.getPublicServices());
       const user = store.user;
 
-      if (!user) {
-        console.warn("Usuario no logueado");
-        return;
-      }
+      if (!user) return;
 
-      // Filtrar servicios del usuario en sesión
       const filtered = allServices?.filter(
-        (service) =>
-          service.userFullName === `${user.firstName} ${user.lastName}`
+        (s) => s.userFullName === `${user.firstName} ${user.lastName}`
       );
 
       setMyServices(filtered || []);
     };
 
     fetchMyServices();
-  }, [store.user]);
+
+    if (location.state?.updated) {
+      Swal.fire({
+        icon: "success",
+        title: "Servicio actualizado",
+        text: "El servicio fue editado correctamente.",
+        confirmButtonColor: "#198754",
+        background: "#1e1e1e",
+        color: "#fff",
+      });
+      navigate(location.pathname, { replace: true });
+    }
+  }, [store.user, store.services]);
+  if (location.state?.created) {
+    Swal.fire({
+      icon: "success",
+      title: "¡Servicio publicado!",
+      text: "Tu servicio fue publicado exitosamente.",
+      confirmButtonColor: "#198754",
+      background: "#1e1e1e",
+      color: "#fff",
+    });
+
+    navigate(location.pathname, { replace: true });
+  }
 
   return (
     <div className="d-flex flex-column">
@@ -60,30 +86,29 @@ export default function MyServicesPage() {
 
                     <div className="mt-auto">
                       <div className="d-flex flex-column gap-2">
-                       
-                        <button
+                        <a
                           className="btn btn-primary w-100 btn-uniform"
-                          onClick={() => alert("¿Eliminar servicio?")}
+                          href={`/service/details/${servicio.id}`}
                         >
-                            <i className="bi bi-eye me-1"></i> Ver detalles
-                        </button>{" "}
-                        <button
+                          <i className="bi bi-eye me-1"></i> Ver detalles
+                        </a>
+                        <a
+                          href={`/service/edit/${servicio.id}`}
                           className="btn btn-secondary w-100 btn-uniform"
-                          onClick={() => alert("¿Eliminar servicio?")}
                         >
                           <i className="bi bi-pencil me-1"></i> Editar
-                        </button>
+                        </a>
                         <button
                           className="btn btn-danger w-100 btn-uniform"
-                          onClick={() => alert("¿Eliminar servicio?")}
+                          onClick={() => {
+                            setServiceToDelete(servicio.id);
+                            setShowDeleteModal(true);
+                          }}
                         >
                           <i className="bi bi-trash me-1"></i> Eliminar
                         </button>
                       </div>
                     </div>
-
-
-
                   </div>
                 </div>
               </div>
@@ -99,6 +124,13 @@ export default function MyServicesPage() {
           </a>
         </div>
       </main>
+
+      {/* Modal para confirmar eliminación */}
+      <ConfirmDeleteService
+        show={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        serviceId={serviceToDelete}
+      />
     </div>
   );
 }
