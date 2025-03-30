@@ -6,6 +6,7 @@ import LoginPage from "./views/login/LoginPage";
 import HomePage from "./views/home/HomePage";
 import ProfilePage from "./views/profile/ProfilePage";
 import ServicesPage from "./views/services/ServicesPage";
+import MyServicesPage from "./views/services/MyServicesPage";
 
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/my-services" element={<MyServicesPage />} />
+
           </Routes>
         </main>
         <Footer />

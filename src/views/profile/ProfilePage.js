@@ -22,7 +22,6 @@ const ProfilePage = () => {
     if (!store.user) {
         navigate('/login');
     } else {
-      // Si está logeado, tomamos los datos del usuario del store
       const { profileImage, firstName, lastName, city, phone, email } = store.user;
       setUserData({
         profileImage: profileImage,

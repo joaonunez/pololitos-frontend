@@ -30,9 +30,9 @@ export default function NavigationBar() {
           <li className="nav-item"><Link className="nav-link" to="/services">Servicios</Link></li>
           {user && (
             <>
-              <li className="nav-item"><Link className="nav-link" to="/mis-servicios">Mis Servicios</Link></li>
-              <li className="nav-item"><Link className="nav-link" to="/mis-solicitudes-enviadas">Enviadas</Link></li>
-              <li className="nav-item"><Link className="nav-link" to="/mis-solicitudes-recibidas">Recibidas</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/my-services">Mis Servicios</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/my-requests-sent">Enviadas</Link></li>
+              <li className="nav-item"><Link className="nav-link" to="/my-requests-received">Recibidas</Link></li>
             </>
           )}
         </ul>
