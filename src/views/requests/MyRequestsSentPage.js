@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../store/context";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function MyRequestsSentPage() {
   const { actions, store } = useContext(Context);
+  const navigate = useNavigate();
 
-  // Estados para solicitudes activas
   const [activeRequests, setActiveRequests] = useState([]);
   const [activePage, setActivePage] = useState(0);
   const [activeTotalPages, setActiveTotalPages] = useState(0);
 
-  // Estados para solicitudes inactivas
   const [inactiveRequests, setInactiveRequests] = useState([]);
   const [inactivePage, setInactivePage] = useState(0);
   const [inactiveTotalPages, setInactiveTotalPages] = useState(0);
@@ -49,17 +50,34 @@ export default function MyRequestsSentPage() {
     const result = await actions.updateRequestStatus(id, "cancel");
     if (result.success) {
       alert(result.message);
-      // Refresca la lista: vuelve a cargar la página actual de solicitudes activas
       loadActiveRequests(activePage);
-      // También actualiza la lista inactiva si fuera necesario
       loadInactiveRequests(0);
     } else {
       alert("Error al cancelar solicitud: " + result.message);
     }
   };
 
+  const handleChat = async (req) => {
+    if (req.chatCreated && req.chatId) {
+      navigate(`/chat/${req.chatId}`);
+    } else {
+      const result = await actions.createChat(store.user.id, req.id);
+      if (result.success && result.data?.id) {
+        navigate(`/chat/${result.data.id}`);
+      } else {
+        Swal.fire({
+          icon: "info",
+          title: "Chat no disponible",
+          text: "No se pudo iniciar el chat.",
+          confirmButtonColor: "#3085d6",
+        });
+      }
+    }
+  };
+  
+
   const requesterName =
-    store.user && store.user.firstName && store.user.lastName
+    store.user?.firstName && store.user?.lastName
       ? `${store.user.firstName} ${store.user.lastName}`
       : "N/A";
 
@@ -67,7 +85,6 @@ export default function MyRequestsSentPage() {
     <div className="container py-5">
       <h2 className="mb-4 text-center">My Sent Requests</h2>
 
-      {/* Sección de Solicitudes Activas */}
       <div className="active-requests mb-5">
         <h4 className="text-warning">Active Requests</h4>
         <div className="table-responsive">
@@ -89,7 +106,7 @@ export default function MyRequestsSentPage() {
                   <td>{req.id}</td>
                   <td>{req.providerName}</td>
                   <td>
-                    <a className="servicio-link" href={`/service/details/${req.serviceId}`}>
+                    <a href={`/service/details/${req.serviceId}`} className="servicio-link">
                       {req.serviceName}
                     </a>
                   </td>
@@ -97,11 +114,14 @@ export default function MyRequestsSentPage() {
                   <td>{req.additionalComment}</td>
                   <td>{new Date(req.requestDate).toLocaleDateString()}</td>
                   <td>
-                    <button
-                      className="btn btn-outline-danger btn-sm mb-1"
-                      onClick={() => handleCancel(req.id)}
-                    >
+                    <button className="btn btn-outline-danger btn-sm mb-1" onClick={() => handleCancel(req.id)}>
                       Cancel
+                    </button>
+                    <button
+                      className={`btn btn-sm ms-1 ${req.chatCreated ? "btn-warning" : "btn-secondary"}`}
+                      onClick={() => handleChat(req)}
+                    >
+                      {req.chatCreated ? "Continue Chat" : "Start Chat"}
                     </button>
                   </td>
                 </tr>
@@ -109,6 +129,7 @@ export default function MyRequestsSentPage() {
             </tbody>
           </table>
         </div>
+
         {activeTotalPages > 1 && (
           <div className="text-center mt-4">
             {[...Array(activeTotalPages)].map((_, i) => (
@@ -124,7 +145,6 @@ export default function MyRequestsSentPage() {
         )}
       </div>
 
-      {/* Sección de Solicitudes Inactivas */}
       <div className="inactive-requests">
         <h4 className="text-white">Rejected or Completed Requests</h4>
         <div className="table-responsive">
@@ -151,6 +171,7 @@ export default function MyRequestsSentPage() {
             </tbody>
           </table>
         </div>
+
         {inactiveTotalPages > 1 && (
           <div className="text-center mt-4">
             {[...Array(inactiveTotalPages)].map((_, i) => (

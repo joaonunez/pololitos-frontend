@@ -389,6 +389,57 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },
+        createChat: async (requesterId, requestId) => {
+          const store = getStore();
+          const token = store.user?.token;
+          if (!token) return { success: false, message: "No autenticado" };
+        
+          try {
+            const response = await fetch(
+              `http://localhost:8080/api/chats/create?requesterId=${requesterId}&requestId=${requestId}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+                }
+              }
+            );
+            if (!response.ok) throw new Error(await response.text());
+            const data = await response.json();
+            return { success: true, data };
+          } catch (error) {
+            console.error("Error creating chat:", error);
+            return { success: false, message: error.message };
+          }
+        },
+        getChat: async (chatId, userId) => {
+          const store = getStore();
+          const token = store.user?.token;
+          if (!token) return { success: false, message: "No autenticado" };
+        
+          try {
+            const response = await fetch(
+              `http://localhost:8080/api/chats/view/${chatId}?userId=${userId}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+        
+            if (!response.ok) throw new Error(await response.text());
+            const data = await response.json();
+            return { success: true, data };
+          } catch (error) {
+            console.error("Error al obtener el chat:", error);
+            return { success: false, message: error.message };
+          }
+        },
+        
+        
+      
       
       
       

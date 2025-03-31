@@ -1,15 +1,17 @@
+// ...imports
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../../store/context";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function MyRequestsReceivedPage() {
   const { actions, store } = useContext(Context);
+  const navigate = useNavigate();
 
-  // Estados para solicitudes recibidas activas
   const [activeRequests, setActiveRequests] = useState([]);
   const [activePage, setActivePage] = useState(0);
   const [activeTotalPages, setActiveTotalPages] = useState(0);
 
-  // Estados para solicitudes recibidas inactivas
   const [inactiveRequests, setInactiveRequests] = useState([]);
   const [inactivePage, setInactivePage] = useState(0);
   const [inactiveTotalPages, setInactiveTotalPages] = useState(0);
@@ -45,12 +47,10 @@ export default function MyRequestsReceivedPage() {
     }
   };
 
-  // Función para actualizar el estado de una solicitud (accept, reject, complete)
   const handleUpdateStatus = async (id, action) => {
     const result = await actions.updateRequestStatus(id, action);
     if (result.success) {
       alert(result.message);
-      // Refrescar ambas listas para reflejar el cambio
       loadActiveRequests(activePage);
       loadInactiveRequests(0);
     } else {
@@ -58,12 +58,20 @@ export default function MyRequestsReceivedPage() {
     }
   };
 
-  // Función para el chat (simulada)
-  const handleChat = (id, chatCreated, requesterId) => {
-    if (chatCreated) {
-      alert(`Continue chat for request ${id}`);
+  const handleChat = async (requestId, chatCreated, chatId) => {
+    if (chatCreated && chatId) {
+      navigate(`/chat/${chatId}`);
     } else {
-      alert(`Start chat for request ${id} with requester ${requesterId}`);
+      const result = await actions.createChat(store.user.id, requestId);
+      if (result.success && result.data?.id) {
+        navigate(`/chat/${result.data.id}`);
+      } else {
+        Swal.fire({
+          icon: "info",
+          title: "Chat no disponible",
+          text: "No se pudo iniciar el chat.",
+        });
+      }
     }
   };
 
@@ -71,7 +79,7 @@ export default function MyRequestsReceivedPage() {
     <div className="container py-5">
       <h2 className="mb-4 text-center">My Received Requests</h2>
 
-      {/* Sección de Solicitudes Recibidas Activas */}
+      {/* Activas */}
       <div className="active-requests mb-5">
         <h4 className="text-warning">Active Requests</h4>
         <div className="table-responsive">
@@ -93,7 +101,7 @@ export default function MyRequestsReceivedPage() {
                   <td>{req.id}</td>
                   <td>{req.requesterName}</td>
                   <td>
-                    <a className="servicio-link" href={`/service/details/${req.serviceId}`}>
+                    <a href={`/service/details/${req.serviceId}`} className="servicio-link">
                       {req.serviceName}
                     </a>
                   </td>
@@ -102,35 +110,27 @@ export default function MyRequestsReceivedPage() {
                   <td>
                     {req.status === "Enviada" && (
                       <>
-                        <button
-                          className="btn btn-success btn-sm mb-1 me-1"
-                          onClick={() => handleUpdateStatus(req.id, "accept")}
-                        >
+                        <button className="btn btn-success btn-sm mb-1 me-1"
+                          onClick={() => handleUpdateStatus(req.id, "accept")}>
                           Accept
                         </button>
-                        <button
-                          className="btn btn-danger btn-sm mb-1"
-                          onClick={() => handleUpdateStatus(req.id, "reject")}
-                        >
+                        <button className="btn btn-danger btn-sm mb-1"
+                          onClick={() => handleUpdateStatus(req.id, "reject")}>
                           Reject
                         </button>
                       </>
                     )}
                     {req.status === "Aceptada" && (
-                      <button
-                        className="btn btn-outline-success btn-sm mb-1"
-                        onClick={() => handleUpdateStatus(req.id, "complete")}
-                      >
+                      <button className="btn btn-outline-success btn-sm mb-1"
+                        onClick={() => handleUpdateStatus(req.id, "complete")}>
                         Mark as Completed
                       </button>
                     )}
                   </td>
                   <td>
                     <button
-                      className="btn btn-warning btn-sm"
-                      onClick={() =>
-                        handleChat(req.id, req.chatCreated, req.requesterId)
-                      }
+                      className={`btn btn-sm ${req.chatCreated ? "btn-warning" : "btn-primary"}`}
+                      onClick={() => handleChat(req.id, req.chatCreated, req.chatId)}
                     >
                       {req.chatCreated ? "Continue Chat" : "Start Chat"}
                     </button>
@@ -140,6 +140,8 @@ export default function MyRequestsReceivedPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Paginación */}
         {activeTotalPages > 1 && (
           <div className="text-center mt-4">
             {[...Array(activeTotalPages)].map((_, i) => (
@@ -155,7 +157,7 @@ export default function MyRequestsReceivedPage() {
         )}
       </div>
 
-      {/* Sección de Solicitudes Recibidas Inactivas */}
+      {/* Inactivas */}
       <div className="inactive-requests">
         <h4 className="text-white">Rejected, Completed or Cancelled Requests</h4>
         <div className="table-responsive">
@@ -182,6 +184,8 @@ export default function MyRequestsReceivedPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Paginación */}
         {inactiveTotalPages > 1 && (
           <div className="text-center mt-4">
             {[...Array(inactiveTotalPages)].map((_, i) => (
