@@ -47,7 +47,7 @@ const ProfilePage = () => {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = '/editarPerfil'; // Redirige a la página de edición
+        window.location.href = '/edit-profile'; // Redirige a la página de edición
       }
     });
   };

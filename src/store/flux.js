@@ -437,6 +437,44 @@ const getState = ({ getActions, getStore, setStore }) => {
             return { success: false, message: error.message };
           }
         },
+        updateProfile: async (formData) => {
+          const store = getStore();
+          const token = store.user?.token;
+        
+          if (!token) {
+            return { success: false, message: "No autenticado" };
+          }
+        
+          try {
+            const response = await fetch("http://localhost:8080/api/users/profile/update", {
+              method: "PATCH",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            });
+        
+            if (!response.ok) {
+              const errorText = await response.text();
+              return { success: false, message: errorText };
+            }
+        
+            const data = await response.json();
+        
+            // 🧠 Asegúrate de conservar el token actual
+            const updatedUser = { ...data, token };
+        
+            setStore({ ...store, user: updatedUser });
+        
+            return { success: true, data: updatedUser };
+        
+          } catch (error) {
+            console.error("Error actualizando perfil:", error);
+            return { success: false, message: "Error inesperado" };
+          }
+        },
+        
+        
         
         
       

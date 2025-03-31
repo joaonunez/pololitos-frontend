@@ -13,6 +13,7 @@ import PostServicePage from "./views/services/PostServicePage";
 import MyRequestsSentPage from "./views/requests/MyRequestsSentPage";
 import MyRequestsReceivedPage from "./views/requests/MyRequestsReceivedPage";
 import ChatPage from "./views/chats/ChatPage";
+import EditProfilePage from "./views/profile/EditProfilePage";
 
 
 function App() {
@@ -33,6 +34,8 @@ function App() {
             <Route path="/my-requests-sent/" element={<MyRequestsSentPage />} />
             <Route path="/my-requests-received/" element={<MyRequestsReceivedPage />} />
             <Route path="/chat/:chatId" element={<ChatPage />} />
+            <Route path="/edit-profile" element={<EditProfilePage />} />
+            
 
 
 
