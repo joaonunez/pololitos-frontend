@@ -254,6 +254,145 @@ const getState = ({ getActions, getStore, setStore }) => {
           return null;
         }
       },
+      getMySentActiveRequests: async (page = 0, size = 2) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch(`http://localhost:8080/api/requests/my-sent/active?page=${page}&size=${size}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching active requests:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      
+      getMySentInactiveRequests: async (page = 0, size = 2) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch(`http://localhost:8080/api/requests/my-sent/inactive?page=${page}&size=${size}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching inactive requests:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      createRequest: async (serviceId, message) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch("http://localhost:8080/api/requests/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ serviceId, message }),
+          });
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error creating request:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      updateRequestStatus: async (requestId, action) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch(`http://localhost:8080/api/requests/${requestId}/${action}`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+          }
+          // Suponiendo que el backend retorna un mensaje en texto
+          const resultText = await response.text();
+          return { success: true, message: resultText };
+        } catch (error) {
+          console.error("Error updating request status:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      getMyReceivedActiveRequests: async (page = 0, size = 4) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/requests/my-received/active?page=${page}&size=${size}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          // data tendrá la estructura: { content, number, totalPages, ... }
+          return data;
+        } catch (error) {
+          console.error("Error fetching received active requests:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      
+      getMyReceivedInactiveRequests: async (page = 0, size = 4) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+      
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/requests/my-received/inactive?page=${page}&size=${size}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching received inactive requests:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      
+      
+      
+      
       
     },
   };

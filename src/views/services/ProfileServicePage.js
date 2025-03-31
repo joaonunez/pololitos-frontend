@@ -1,25 +1,39 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../../store/context";
 
 export default function ProfileServicePage() {
   const { store, actions } = useContext(Context);
   const { id } = useParams();
+  const navigate = useNavigate();
   const [service, setService] = useState(null);
+  const [message, setMessage] = useState("");
+  const [requestStatus, setRequestStatus] = useState(null);
 
   useEffect(() => {
     const loadService = async () => {
       const fetchedService = await actions.getPublicServiceById(id);
       setService(fetchedService || null);
     };
-
     loadService();
-  }, [id]);
+  }, [id, actions]);
 
-  if (!service) return <p className="text-white text-center">Cargando servicio...</p>;
+  if (!service)
+    return <p className="text-white text-center">Cargando servicio...</p>;
 
   const user = store.user;
   const isAuthor = user && user.id === service.userId;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = await actions.createRequest(service.id, message);
+    if (result && result.requestId) {
+      // Redirigir a my-requests-sent al crear la solicitud exitosamente
+      navigate("/my-requests-sent");
+    } else {
+      setRequestStatus("Error al enviar solicitud: " + (result.message || "Error desconocido"));
+    }
+  };
 
   return (
     <div className="container py-4 text-white">
@@ -38,7 +52,8 @@ export default function ProfileServicePage() {
               <h3 className="card-title">{service.name}</h3>
               <p className="card-text">{service.description}</p>
               <p className="card-text mb-1">
-                <strong>Precio:</strong> ${service.price.toLocaleString("es-CL")}
+                <strong>Precio:</strong> $
+                {service.price.toLocaleString("es-CL")}
               </p>
               <p>
                 <strong>Ciudad:</strong> {service.city}
@@ -62,16 +77,19 @@ export default function ProfileServicePage() {
       {!isAuthor && (
         <div className="card bg-dark text-white mb-4 p-4">
           <h5>Enviar Solicitud</h5>
-          <form>
+          <form onSubmit={handleSubmit}>
             <textarea
               className="form-control mb-3"
               placeholder="Mensaje para el proveedor..."
               required
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             ></textarea>
             <button type="submit" className="btn btn-success">
               Enviar Solicitud
             </button>
           </form>
+          {requestStatus && <p className="mt-3">{requestStatus}</p>}
         </div>
       )}
     </div>

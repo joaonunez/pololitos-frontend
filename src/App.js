@@ -10,6 +10,8 @@ import MyServicesPage from "./views/services/MyServicesPage";
 import ProfileServicePage from "./views/services/ProfileServicePage";
 import EditServicePage from "./views/services/EditServicePage";
 import PostServicePage from "./views/services/PostServicePage";
+import MyRequestsSentPage from "./views/requests/MyRequestsSentPage";
+import MyRequestsReceivedPage from "./views/requests/MyRequestsReceivedPage";
 
 
 function App() {
@@ -27,6 +29,9 @@ function App() {
             <Route path="/service/details/:id" element={<ProfileServicePage />} />
             <Route path="/service/edit/:id" element={<EditServicePage />} />
             <Route path="/post-service/" element={<PostServicePage />} />
+            <Route path="/my-requests-sent/" element={<MyRequestsSentPage />} />
+            <Route path="/my-requests-received/" element={<MyRequestsReceivedPage />} />
+
 
 
           </Routes>
