@@ -41,29 +41,28 @@ export default function SearchServiceResultsPage() {
 
       {results.length > 0 ? (
         <div className="row justify-content-center">
-          {results.map((servicio) => (
-            <div key={servicio.id} className="col-md-3 col-sm-6 mb-4">
+          {results.map((service) => (
+            <div key={service.id} className="col-md-3 col-sm-6 mb-4">
               <div className="card bg-dark text-white h-100">
-                <a href={`/service/details/${servicio.id}`}>
+                <a href={`/service/details/${service.id}`}>
                   <img
-                    src={servicio.imageUrl}
+                    src={service.imageUrl}
                     className="card-img-top"
                     style={{ height: "220px", objectFit: "cover" }}
-                    alt={servicio.name}
+                    alt={service.name}
                   />
                 </a>
                 <div className="card-body d-flex flex-column">
-                  <h5 className="card-title text-truncate">{servicio.name}</h5>
+                  <h5 className="card-title text-truncate">{service.name}</h5>
                   <p className="card-text mb-1">
-                    <strong>Precio:</strong> ${" "}
-                    {servicio.price.toLocaleString("es-CL")}
+                    <strong>Precio:</strong> ${service.price.toLocaleString("es-CL")}
                   </p>
                   <p className="card-text">
-                    <small>Autor: {servicio.userFullName}</small>
+                    <small>Autor: {service.userFullName}</small>
                   </p>
                   <a
                     className="btn btn-primary mt-auto w-100 btn-uniform"
-                    href={`/service/details/${servicio.id}`}
+                    href={`/service/details/${service.id}`}
                   >
                     <i className="bi bi-eye me-1"></i> Ver detalles
                   </a>

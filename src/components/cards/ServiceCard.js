@@ -21,23 +21,13 @@ export default function ServiceCard({ service }) {
           <small>Autor: {service.userFullName}</small>
         </p>
         <div className="mt-auto m-auto text-center">
-          <a
-            href={`/service/details/${service.id}`}
-            className="btn btn-primary btn-sm me-2 mb-2"
-          >
-            <i className="bi bi-hand-index-thumb"></i> Solicitar Servicio
-          </a>
+        <a
+                    className="btn btn-primary mt-auto w-100 btn-uniform"
+                    href={`/service/details/${service.id}`}
+                  >
+                    <i className="bi bi-eye me-1"></i> Ver detalles
+                  </a>
           <br />
-          <button
-            className="btn btn-outline-light btn-sm mb-2"
-            onClick={() =>
-              alert(
-                `Simulate contacting ${service.user?.firstName || "Proveedor"} about the service "${service.name}"`
-              )
-            }
-          >
-            <i className="bi bi-chat-dots"></i> Contactar
-          </button>
         </div>
       </div>
     </div>
