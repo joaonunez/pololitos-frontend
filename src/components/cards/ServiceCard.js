@@ -2,11 +2,14 @@ import React from "react";
 import PropTypes from "prop-types";
 
 export default function ServiceCard({ service }) {
+  const fallbackImage = "https://res.cloudinary.com/dwz4chwv7/image/upload/v1743691666/settings_palv37.png";
+  const imageUrl = service.imageUrl || fallbackImage;
+
   return (
     <div className="card bg-dark text-white h-100">
       <a href={`/service/details/${service.id}`}>
         <img
-          src={service.imageUrl}
+          src={imageUrl}
           className="card-img-top"
           style={{ height: "220px", objectFit: "cover" }}
           alt={service.name}
@@ -21,12 +24,12 @@ export default function ServiceCard({ service }) {
           <small>Autor: {service.userFullName}</small>
         </p>
         <div className="mt-auto m-auto text-center">
-        <a
-                    className="btn btn-primary mt-auto w-100 btn-uniform"
-                    href={`/service/details/${service.id}`}
-                  >
-                    <i className="bi bi-eye me-1"></i> Ver detalles
-                  </a>
+          <a
+            className="btn btn-primary mt-auto w-100 btn-uniform"
+            href={`/service/details/${service.id}`}
+          >
+            <i className="bi bi-eye me-1"></i> Ver detalles
+          </a>
           <br />
         </div>
       </div>

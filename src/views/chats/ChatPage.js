@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Context } from "../../store/context";
 import Swal from "sweetalert2";
@@ -12,6 +12,7 @@ export default function ChatPage() {
   const [chat, setChat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const loadChat = async () => {
@@ -28,8 +29,19 @@ export default function ChatPage() {
 
       const result = await actions.getChat(chatId, userId);
       if (result.success) {
-        setChat(result.data);
-        setLoading(false);
+        const chatData = result.data;
+
+        // Cargar mensajes antiguos
+        const mensajesRef = db.ref(`chats/${chatId}/mensajes`);
+        mensajesRef.once("value", (snapshot) => {
+          const mensajes = [];
+          snapshot.forEach((snap) => {
+            mensajes.push(snap.val());
+          });
+          chatData.messages = mensajes;
+          setChat(chatData);
+          setLoading(false);
+        });
       } else {
         Swal.fire({
           icon: "error",
@@ -56,9 +68,6 @@ export default function ChatPage() {
           messages: [...(prev.messages || []), nuevoMensaje],
         };
       });
-
-      const chatBox = document.getElementById("chat-box");
-      if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
     });
 
     return () => {
@@ -66,9 +75,14 @@ export default function ChatPage() {
     };
   }, [chatId, store.user]);
 
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chat?.messages]);
+
   const handleSendMessage = async (e, forceValue = null) => {
     e.preventDefault();
-
     const mensajeInput = document.getElementById("mensaje-input");
     const contenido = (
       forceValue !== null ? forceValue : mensajeInput.value
@@ -87,7 +101,7 @@ export default function ChatPage() {
       const mensajesRef = db.ref(`chats/${chatId}/mensajes`);
       await mensajesRef.push(nuevoMensaje);
       mensajeInput.value = "";
-      mensajeInput.style.height = "auto"; // por si tiene auto resize
+      mensajeInput.style.height = "auto";
     } catch (error) {
       console.error("❌ Error al enviar mensaje:", error);
       Swal.fire("Error", "No se pudo enviar el mensaje", "error");
@@ -97,63 +111,7 @@ export default function ChatPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container py-4 text-white">
-        <div className="row justify-content-center g-4">
-          <div className="col-12 col-md-6 col-lg-5">
-            <div className="card placeholder-wave shadow h-100">
-              <div
-                className="card-img-top placeholder"
-                style={{ height: "180px" }}
-              ></div>
-              <div className="card-body">
-                <h5 className="card-title placeholder col-6"></h5>
-                <p className="card-text placeholder col-8"></p>
-              </div>
-              <div className="card-footer bg-transparent border-0">
-                <span className="btn btn-primary disabled placeholder col-6"></span>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-12 col-md-6 col-lg-5">
-            <div className="card shadow bg-dark d-flex flex-column h-100 placeholder-wave">
-              <div className="card-header d-flex align-items-center gap-3">
-                <div
-                  className="placeholder rounded-circle"
-                  style={{ width: "40px", height: "40px" }}
-                ></div>
-                <div className="w-100">
-                  <div
-                    className="placeholder col-6"
-                    style={{ height: "14px" }}
-                  ></div>
-                  <div
-                    className="placeholder col-4 mt-2"
-                    style={{ height: "12px" }}
-                  ></div>
-                </div>
-              </div>
-              <div className="card-body p-3 overflow-auto">
-                <div className="placeholder col-6 mb-2"></div>
-                <div className="placeholder col-5 mb-2"></div>
-                <div className="placeholder col-4 mb-2"></div>
-              </div>
-              <div className="card-footer p-3 d-flex gap-2 align-items-center">
-                <div
-                  className="placeholder flex-grow-1 rounded-pill"
-                  style={{ height: "38px" }}
-                ></div>
-                <div
-                  className="placeholder rounded-circle"
-                  style={{ width: "38px", height: "38px" }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <p className="text-center text-white">Cargando...</p>;
   }
 
   if (!chat) {
@@ -210,20 +168,26 @@ export default function ChatPage() {
                   style={{ minHeight: "200px", maxHeight: "400px" }}
                 >
                   {chat.messages && chat.messages.length > 0 ? (
-                    chat.messages.map((message, index) => (
-                      <div
-                        key={index}
-                        className={`mb-2 ${
-                          message.userId === store.user.id
-                            ? "text-end"
-                            : "text-start"
-                        }`}
-                      >
-                        <span className="badge bg-secondary">
-                          {message.content}
-                        </span>
-                      </div>
-                    ))
+                    <>
+                      {chat.messages.map((message, index) => (
+                        <div
+                          key={index}
+                          className={`message ${
+                            message.userId === store.user.id
+                              ? "sent"
+                              : "received"
+                          }`}
+                        >
+                          {message.userId !== store.user.id && (
+                            <span className="nombre-usuario">
+                              {message.userName}
+                            </span>
+                          )}
+                          <span>{message.content}</span>
+                        </div>
+                      ))}
+                      <div ref={chatEndRef} />
+                    </>
                   ) : (
                     <p className="text-center">No hay mensajes aún.</p>
                   )}

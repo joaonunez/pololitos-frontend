@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Context } from "../../store/context";
+import ServiceCard from "../../components/cards/ServiceCard";
 
 export default function SearchServiceResultsPage() {
   const { actions } = useContext(Context);
@@ -43,31 +44,7 @@ export default function SearchServiceResultsPage() {
         <div className="row justify-content-center">
           {results.map((service) => (
             <div key={service.id} className="col-md-3 col-sm-6 mb-4">
-              <div className="card bg-dark text-white h-100">
-                <a href={`/service/details/${service.id}`}>
-                  <img
-                    src={service.imageUrl}
-                    className="card-img-top"
-                    style={{ height: "220px", objectFit: "cover" }}
-                    alt={service.name}
-                  />
-                </a>
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title text-truncate">{service.name}</h5>
-                  <p className="card-text mb-1">
-                    <strong>Precio:</strong> ${service.price.toLocaleString("es-CL")}
-                  </p>
-                  <p className="card-text">
-                    <small>Autor: {service.userFullName}</small>
-                  </p>
-                  <a
-                    className="btn btn-primary mt-auto w-100 btn-uniform"
-                    href={`/service/details/${service.id}`}
-                  >
-                    <i className="bi bi-eye me-1"></i> Ver detalles
-                  </a>
-                </div>
-              </div>
+              <ServiceCard service={service} />
             </div>
           ))}
         </div>
