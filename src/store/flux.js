@@ -513,7 +513,7 @@ const getState = ({ getActions, getStore, setStore }) => {
           });
 
           const response = await fetch(
-            `http://localhost:8080/api/services/search?${params.toString()}`,
+            `http://localhost:8000/api/services/search?${params.toString()}`,
             {
               method: "POST",
             }

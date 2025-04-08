@@ -15,7 +15,7 @@ export default function SearchServiceResultsPage() {
     if (location.state?.results) {
       setResults(location.state.results.content);
       setTotalPages(location.state.results.totalPages);
-      setCurrentPage(location.state.results.number);
+      setCurrentPage(location.state.results.pageNumber);
       setSearchTerm(location.state.results.searchTerm || "");
     }
   }, [location.state]);
@@ -26,7 +26,7 @@ export default function SearchServiceResultsPage() {
     if (result.success) {
       setResults(result.data.content);
       setTotalPages(result.data.totalPages);
-      setCurrentPage(result.data.number);
+      setCurrentPage(result.data.pageNumber);
       setSearchTerm(term);
     }
   };

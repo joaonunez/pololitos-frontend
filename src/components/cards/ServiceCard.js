@@ -21,7 +21,7 @@ export default function ServiceCard({ service }) {
           <strong>Precio:</strong> ${service.price.toLocaleString("es-CL")}
         </p>
         <p className="card-text">
-          <small>Autor: {service.userFullName}</small>
+          <small>Autor: {service.user.first_name} {service.user.last_name}</small>
         </p>
         <div className="mt-auto m-auto text-center">
           <a
