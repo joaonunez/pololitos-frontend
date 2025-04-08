@@ -13,18 +13,19 @@ const getState = ({ getActions, getStore, setStore }) => {
       },
 
       // Iniciar sesión
+      // Iniciar sesión
       login: async (email, password) => {
         try {
           const response = await fetch(
-            "http://localhost:8080/api/users/login",
+            "http://localhost:8000/api/users/login",
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                emailLogin: email,
-                passwordLogin: password,
+                email: email,
+                password: password,
               }),
             }
           );
@@ -39,9 +40,9 @@ const getState = ({ getActions, getStore, setStore }) => {
           const user = {
             id: data.id,
             email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            profileImage: data.profileImage,
+            firstName: data.first_name,
+            lastName: data.last_name,
+            profilePicture: data.profile_picture,
             phone: data.phone,
             city: data.city,
             token: data.token,
@@ -243,10 +244,13 @@ const getState = ({ getActions, getStore, setStore }) => {
       },
       getPublicServiceById: async (id) => {
         try {
-          const response = await fetch(`http://localhost:8080/api/services/public/service/${id}`);
-      
-          if (!response.ok) throw new Error("No se pudo obtener el servicio público");
-      
+          const response = await fetch(
+            `http://localhost:8080/api/services/public/service/${id}`
+          );
+
+          if (!response.ok)
+            throw new Error("No se pudo obtener el servicio público");
+
           const data = await response.json();
           return data;
         } catch (error) {
@@ -258,14 +262,17 @@ const getState = ({ getActions, getStore, setStore }) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
-          const response = await fetch(`http://localhost:8080/api/requests/my-sent/active?page=${page}&size=${size}`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const response = await fetch(
+            `http://localhost:8080/api/requests/my-sent/active?page=${page}&size=${size}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           if (!response.ok) throw new Error(await response.text());
           const data = await response.json();
           return data;
@@ -274,19 +281,22 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },
-      
+
       getMySentInactiveRequests: async (page = 0, size = 2) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
-          const response = await fetch(`http://localhost:8080/api/requests/my-sent/inactive?page=${page}&size=${size}`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const response = await fetch(
+            `http://localhost:8080/api/requests/my-sent/inactive?page=${page}&size=${size}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           if (!response.ok) throw new Error(await response.text());
           const data = await response.json();
           return data;
@@ -299,16 +309,19 @@ const getState = ({ getActions, getStore, setStore }) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
-          const response = await fetch("http://localhost:8080/api/requests/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ serviceId, message }),
-          });
+          const response = await fetch(
+            "http://localhost:8080/api/requests/create",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ serviceId, message }),
+            }
+          );
           if (!response.ok) throw new Error(await response.text());
           const data = await response.json();
           return data;
@@ -321,14 +334,17 @@ const getState = ({ getActions, getStore, setStore }) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
-          const response = await fetch(`http://localhost:8080/api/requests/${requestId}/${action}`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const response = await fetch(
+            `http://localhost:8080/api/requests/${requestId}/${action}`,
+            {
+              method: "PATCH",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(errorText);
@@ -345,7 +361,7 @@ const getState = ({ getActions, getStore, setStore }) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
           const response = await fetch(
             `http://localhost:8080/api/requests/my-received/active?page=${page}&size=${size}`,
@@ -365,12 +381,12 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },
-      
+
       getMyReceivedInactiveRequests: async (page = 0, size = 4) => {
         const store = getStore();
         const token = store.user?.token;
         if (!token) return { success: false, message: "No autenticado" };
-      
+
         try {
           const response = await fetch(
             `http://localhost:8080/api/requests/my-received/inactive?page=${page}&size=${size}`,
@@ -389,116 +405,119 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },
-        createChat: async (requesterId, requestId) => {
-          const store = getStore();
-          const token = store.user?.token;
-          if (!token) return { success: false, message: "No autenticado" };
-        
-          try {
-            const response = await fetch(
-              `http://localhost:8080/api/chats/create?requesterId=${requesterId}&requestId=${requestId}`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`
-                }
-              }
-            );
-            if (!response.ok) throw new Error(await response.text());
-            const data = await response.json();
-            return { success: true, data };
-          } catch (error) {
-            console.error("Error creating chat:", error);
-            return { success: false, message: error.message };
-          }
-        },
-        getChat: async (chatId, userId) => {
-          const store = getStore();
-          const token = store.user?.token;
-          if (!token) return { success: false, message: "No autenticado" };
-        
-          try {
-            const response = await fetch(
-              `http://localhost:8080/api/chats/view/${chatId}?userId=${userId}`,
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-        
-            if (!response.ok) throw new Error(await response.text());
-            const data = await response.json();
-            return { success: true, data };
-          } catch (error) {
-            console.error("Error al obtener el chat:", error);
-            return { success: false, message: error.message };
-          }
-        },
-        updateProfile: async (formData) => {
-          const store = getStore();
-          const token = store.user?.token;
-        
-          if (!token) {
-            return { success: false, message: "No autenticado" };
-          }
-        
-          try {
-            const response = await fetch("http://localhost:8080/api/users/profile/update", {
+      createChat: async (requesterId, requestId) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/chats/create?requesterId=${requesterId}&requestId=${requestId}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return { success: true, data };
+        } catch (error) {
+          console.error("Error creating chat:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      getChat: async (chatId, userId) => {
+        const store = getStore();
+        const token = store.user?.token;
+        if (!token) return { success: false, message: "No autenticado" };
+
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/chats/view/${chatId}?userId=${userId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) throw new Error(await response.text());
+          const data = await response.json();
+          return { success: true, data };
+        } catch (error) {
+          console.error("Error al obtener el chat:", error);
+          return { success: false, message: error.message };
+        }
+      },
+      updateProfile: async (formData) => {
+        const store = getStore();
+        const token = store.user?.token;
+
+        if (!token) {
+          return { success: false, message: "No autenticado" };
+        }
+
+        try {
+          const response = await fetch(
+            "http://localhost:8080/api/users/profile/update",
+            {
               method: "PATCH",
               headers: {
                 Authorization: `Bearer ${token}`,
               },
               body: formData,
-            });
-        
-            if (!response.ok) {
-              const errorText = await response.text();
-              return { success: false, message: errorText };
             }
-        
-            const data = await response.json();
-        
-            // 🧠 Asegúrate de conservar el token actual
-            const updatedUser = { ...data, token };
-        
-            setStore({ ...store, user: updatedUser });
-        
-            return { success: true, data: updatedUser };
-        
-          } catch (error) {
-            console.error("Error actualizando perfil:", error);
-            return { success: false, message: "Error inesperado" };
+          );
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            return { success: false, message: errorText };
           }
-        },
-        searchServices: async (query, page = 0, size = 8) => {
-          try {
-            const params = new URLSearchParams({
-              keyword: query,
-              page,
-              size
-            });
-        
-            const response = await fetch(`http://localhost:8080/api/services/search?${params.toString()}`, {
-              method: "POST"
-            });
-        
-            if (!response.ok) {
-              const errorText = await response.text();
-              return { success: false, message: errorText };
-            }
-        
-            const data = await response.json();
-            return { success: true, data };
-          } catch (error) {
-            console.error("Error al buscar servicios:", error);
-            return { success: false, message: "Error de red o del servidor" };
-          }
+
+          const data = await response.json();
+
+          // 🧠 Asegúrate de conservar el token actual
+          const updatedUser = { ...data, token };
+
+          setStore({ ...store, user: updatedUser });
+
+          return { success: true, data: updatedUser };
+        } catch (error) {
+          console.error("Error actualizando perfil:", error);
+          return { success: false, message: "Error inesperado" };
         }
-        
-      
+      },
+      searchServices: async (query, page = 0, size = 8) => {
+        try {
+          const params = new URLSearchParams({
+            keyword: query,
+            page,
+            size,
+          });
+
+          const response = await fetch(
+            `http://localhost:8080/api/services/search?${params.toString()}`,
+            {
+              method: "POST",
+            }
+          );
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            return { success: false, message: errorText };
+          }
+
+          const data = await response.json();
+          return { success: true, data };
+        } catch (error) {
+          console.error("Error al buscar servicios:", error);
+          return { success: false, message: "Error de red o del servidor" };
+        }
+      },
     },
   };
 };

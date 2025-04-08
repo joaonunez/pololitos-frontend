@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const { store } = useContext(Context); // Obtener el estado del store
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    profileImage: '',
+    profilePicture: '',
     firstName: '',
     lastName: '',
     city: '',
@@ -22,9 +22,9 @@ const ProfilePage = () => {
     if (!store.user) {
         navigate('/login');
     } else {
-      const { profileImage, firstName, lastName, city, phone, email } = store.user;
+      const { profilePicture, firstName, lastName, city, phone, email } = store.user;
       setUserData({
-        profileImage: profileImage,
+        profileImage: profilePicture,
         firstName,
         lastName,
         city,

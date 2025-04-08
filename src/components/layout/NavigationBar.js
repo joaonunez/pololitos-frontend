@@ -130,7 +130,7 @@ export default function NavigationBar() {
               <>
                 <Link to="/profile">
                   <img
-                    src={user.profileImage || defaultProfileImage}
+                    src={user.profilePicture || defaultProfileImage}
                     alt="Perfil"
                     width="40"
                     height="40"
