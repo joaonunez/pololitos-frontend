@@ -7,7 +7,7 @@ const ProfileCard = ({ user, onEdit }) => {
       <div className="col-md-5">
         <div className="profile-card">
           <img
-            src={user.profileImage || defaultProfileImage}
+            src={user.profilePicture || defaultProfileImage}
             alt="Foto de perfil"
             className="img-fluid rounded-circle"
           />
@@ -41,7 +41,7 @@ const ProfileCard = ({ user, onEdit }) => {
 
 ProfileCard.propTypes = {
   user: PropTypes.shape({
-    profileImage: PropTypes.string.isRequired,
+    profilePicture: PropTypes.string.isRequired,
     firstName: PropTypes.string.isRequired,
     lastName: PropTypes.string.isRequired,
     city: PropTypes.string.isRequired,

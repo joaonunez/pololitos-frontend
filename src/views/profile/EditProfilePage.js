@@ -14,7 +14,7 @@ export default function EditProfilePage() {
     city: user?.city || "",
     phone: user?.phone || "",
     profileImageFile: null,
-    profileImage: user?.profileImage || "",
+    profilePicture: user?.profilePicture || "",
   });
 
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -49,7 +49,7 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const confirmed = await Swal.fire({
       title: "¿Guardar cambios?",
       text: "Tu perfil será actualizado con la nueva información.",
@@ -58,18 +58,18 @@ export default function EditProfilePage() {
       confirmButtonText: "Sí, actualizar",
       cancelButtonText: "Cancelar",
     });
-  
+
     if (!confirmed.isConfirmed) return;
-  
+
     const dataToSend = new FormData();
-    dataToSend.append("firstName", formData.firstName);
-    dataToSend.append("lastName", formData.lastName);
+    dataToSend.append("first_name", formData.firstName);
+    dataToSend.append("last_name", formData.lastName);
     dataToSend.append("city", formData.city);
     dataToSend.append("phone", formData.phone);
     if (formData.profileImageFile) {
-      dataToSend.append("profileImageFile", formData.profileImageFile);
+      dataToSend.append("profile_image_file", formData.profileImageFile);
     }
-  
+
     const result = await actions.updateProfile(dataToSend);
     if (result.success) {
       Swal.fire({
@@ -83,7 +83,6 @@ export default function EditProfilePage() {
       Swal.fire("Error", result.message, "error");
     }
   };
-  
 
   return (
     <div className="container my-5">
@@ -144,7 +143,7 @@ export default function EditProfilePage() {
                 <label className="form-label">Imagen actual</label>
                 <br />
                 <img
-                  src={formData.profileImage}
+                  src={formData.profilePicture}
                   alt="Imagen actual"
                   className="img-thumbnail"
                   style={{ maxWidth: "200px" }}

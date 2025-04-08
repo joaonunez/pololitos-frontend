@@ -179,7 +179,7 @@ const getState = ({ getActions, getStore, setStore }) => {
       getPaginatedServices: async (page = 0, size = 8) => {
         try {
           const response = await fetch(
-            `http://localhost:8080/api/services/paginated?page=${page}&size=${size}`
+            `http://localhost:8000/api/services/paginated?page=${page}&size=${size}`
           );
           if (!response.ok)
             throw new Error("Failed to fetch paginated services");
@@ -456,14 +456,14 @@ const getState = ({ getActions, getStore, setStore }) => {
       updateProfile: async (formData) => {
         const store = getStore();
         const token = store.user?.token;
-
+      
         if (!token) {
           return { success: false, message: "No autenticado" };
         }
-
+      
         try {
           const response = await fetch(
-            "http://localhost:8080/api/users/profile/update",
+            "http://localhost:8000/api/users/profile/update",
             {
               method: "PATCH",
               headers: {
@@ -472,25 +472,38 @@ const getState = ({ getActions, getStore, setStore }) => {
               body: formData,
             }
           );
-
+      
           if (!response.ok) {
             const errorText = await response.text();
             return { success: false, message: errorText };
           }
-
+      
           const data = await response.json();
-
-          // 🧠 Asegúrate de conservar el token actual
-          const updatedUser = { ...data, token };
-
+      
+          // Construir nuevo objeto de usuario con el token original
+          const updatedUser = {
+            id: data.id,
+            email: data.email,
+            firstName: data.first_name,
+            lastName: data.last_name,
+            profilePicture: data.profile_picture || "",
+            phone: data.phone,
+            city: data.city,
+            token: token, // mantener token actual
+          };
+      
+          localStorage.setItem("user", JSON.stringify(updatedUser));
           setStore({ ...store, user: updatedUser });
-
+      
           return { success: true, data: updatedUser };
         } catch (error) {
           console.error("Error actualizando perfil:", error);
           return { success: false, message: "Error inesperado" };
         }
       },
+      
+
+
       searchServices: async (query, page = 0, size = 8) => {
         try {
           const params = new URLSearchParams({

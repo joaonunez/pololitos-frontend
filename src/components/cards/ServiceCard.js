@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 export default function ServiceCard({ service }) {
   const fallbackImage = "https://res.cloudinary.com/dwz4chwv7/image/upload/v1743691666/settings_palv37.png";
-  const imageUrl = service.imageUrl || fallbackImage;
+  const imageUrl = service.image_url || fallbackImage;
 
   return (
     <div className="card bg-dark text-white h-100">

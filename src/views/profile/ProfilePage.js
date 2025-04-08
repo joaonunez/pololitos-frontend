@@ -24,7 +24,7 @@ const ProfilePage = () => {
     } else {
       const { profilePicture, firstName, lastName, city, phone, email } = store.user;
       setUserData({
-        profileImage: profilePicture,
+        profilePicture: profilePicture,
         firstName,
         lastName,
         city,
