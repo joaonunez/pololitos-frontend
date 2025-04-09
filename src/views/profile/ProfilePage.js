@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux"; // ⬅️ NUEVO
+import { useSelector } from "react-redux";
 import ProfileCard from "../../components/cards/ProfileCard";
-
+import { confirmAlert } from "react-confirm-alert";
 const ProfilePage = () => {
   const user = useSelector((state) => state.user.currentUser); 
   const navigate = useNavigate();
@@ -34,21 +34,22 @@ const ProfilePage = () => {
   }, [user, navigate]);
 
   const confirmarEdicion = () => {
-    Swal.fire({
-      title: '¿Editar tu perfil?',
-      text: 'Serás redirigido al formulario de edición.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, continuar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = '/edit-profile';
-      }
+    confirmAlert({
+      title: "¿Editar tu perfil?",
+      message: "Serás redirigido al formulario de edición.",
+      buttons: [
+        {
+          label: "Sí, continuar",
+          onClick: () => navigate("/edit-profile"),
+        },
+        {
+          label: "Cancelar",
+          onClick: () => {},
+        },
+      ],
     });
   };
+  
 
   return (
     <div className="container my-5">

@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateProfile } from "../../store/user/userActions";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
+
 
 export default function EditProfilePage() {
   const dispatch = useDispatch();
@@ -23,11 +25,9 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (!user) {
-      Swal.fire({
-        icon: "warning",
-        title: "No autenticado",
-        text: "Inicia sesión para editar tu perfil.",
-      });
+      toast.warning("Inicia sesión para editar tu perfil.",{
+        position: "bottom-right"
+      }); 
       navigate("/login");
     }
   }, [user, navigate]);
@@ -51,40 +51,45 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const confirmed = await Swal.fire({
+  
+    confirmAlert({
       title: "¿Guardar cambios?",
-      text: "Tu perfil será actualizado con la nueva información.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, actualizar",
-      cancelButtonText: "Cancelar",
+      message: "Tu perfil será actualizado con la nueva información.",
+      buttons: [
+        {
+          label: "Sí, actualizar",
+          onClick: async () => {
+            const dataToSend = new FormData();
+            dataToSend.append("first_name", formData.firstName);
+            dataToSend.append("last_name", formData.lastName);
+            dataToSend.append("city", formData.city);
+            dataToSend.append("phone", formData.phone);
+            if (formData.profileImageFile) {
+              dataToSend.append("profile_image_file", formData.profileImageFile);
+            }
+  
+            const result = await dispatch(updateProfile(dataToSend));
+            if (result.success) {
+              toast.success("Perfil actualizado correctamente",{
+                position: "bottom-right"
+              });
+              navigate("/profile");
+            } else {
+              toast.error(`Error: ${result.message}`,{
+                position: "bottom-right"
+              });
+            }
+          },
+        },
+        {
+          label: "Cancelar",
+          onClick: () => {},
+        },
+      ],
     });
-
-    if (!confirmed.isConfirmed) return;
-
-    const dataToSend = new FormData();
-    dataToSend.append("first_name", formData.firstName);
-    dataToSend.append("last_name", formData.lastName);
-    dataToSend.append("city", formData.city);
-    dataToSend.append("phone", formData.phone);
-    if (formData.profileImageFile) {
-      dataToSend.append("profile_image_file", formData.profileImageFile);
-    }
-
-    const result = await dispatch(updateProfile(dataToSend));
-    if (result.success) {
-      Swal.fire({
-        icon: "success",
-        title: "Perfil actualizado",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-      navigate("/profile");
-    } else {
-      Swal.fire("Error", result.message, "error");
-    }
   };
+  
+
 
   return (
     <div className="container my-5">

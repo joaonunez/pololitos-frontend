@@ -358,33 +358,6 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },     
-      searchServices: async (query, page = 0, size = 8) => {
-        try {
-          const params = new URLSearchParams({
-            keyword: query,
-            page,
-            size,
-          });
-
-          const response = await fetch(
-            `http://localhost:8000/api/services/search?${params.toString()}`,
-            {
-              method: "POST",
-            }
-          );
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            return { success: false, message: errorText };
-          }
-
-          const data = await response.json();
-          return { success: true, data };
-        } catch (error) {
-          console.error("Error al buscar servicios:", error);
-          return { success: false, message: "Error de red o del servidor" };
-        }
-      },
     },
   };
 };
