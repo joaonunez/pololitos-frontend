@@ -7,7 +7,7 @@ import ServiceCard from "../../components/cards/ServiceCard";
 export default function ServicesPage() {
   const dispatch = useDispatch();
   const { content, totalPages, pageNumber } = useSelector(
-    (state) => state.service.paginated
+    (state) => state.service.publicPaginated
   );
   const loading = useSelector((state) => state.service.loading);
   const error = useSelector((state) => state.service.error);

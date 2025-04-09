@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import pololitosLogoWhite from "../../assets/img/pololitos-logo-white.png";
 import defaultProfileImage from "../../assets/img/default-profile-image.png";
 import { logout } from "../../store/user/userSlice";
+import { searchServices } from "../../store/service/serviceActions";
 
 export default function NavigationBar() {
   const dispatch = useDispatch();
@@ -21,9 +22,15 @@ export default function NavigationBar() {
     e.preventDefault();
     if (search.trim() === "") return;
 
-    // ⚠️ Aquí deberás migrar también searchServices a Redux más adelante.
-    // Por ahora, puedes mantenerlo externo si aún no migras esa parte.
-    console.warn("🔍 Buscador aún no migrado a Redux.");
+    const result = await dispatch(searchServices(search.trim(), 0, 8));
+
+    if (result.success) {
+      navigate("/search-results", {
+        state: { results: result.data },
+      });
+    } else {
+      console.error("Error en búsqueda:", result.message);
+    }
   };
 
   return (

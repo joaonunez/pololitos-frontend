@@ -13,7 +13,7 @@ export default function MyServicesPage() {
   const location = useLocation();
 
   const { content, totalPages, pageNumber } = useSelector(
-    (state) => state.service.paginated
+    (state) => state.service.myPaginated
   );
   const loading = useSelector((state) => state.service.loading);
   const error = useSelector((state) => state.service.error);
