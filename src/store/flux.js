@@ -96,21 +96,6 @@ const getState = ({ getActions, getStore, setStore }) => {
           return { success: false, message: error.message };
         }
       },
-      getPaginatedServices: async (page = 0, size = 8) => {
-        try {
-          const response = await fetch(
-            `http://localhost:8000/api/services/paginated?page=${page}&size=${size}`
-          );
-          if (!response.ok)
-            throw new Error("Failed to fetch paginated services");
-
-          const data = await response.json();
-          return data;
-        } catch (error) {
-          console.error("Error al cargar servicios paginados:", error);
-          return null;
-        }
-      },
       getMyServicesPaginated: async (page = 0, size = 8) => {
         const store = getStore();
         const token = store.user?.token;
