@@ -1,9 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Context } from '../../store/context';
+import { useDispatch } from 'react-redux';
+import { login } from '../../store/user/userActions';
 
 export default function LoginForm() {
-  const { actions } = useContext(Context);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -31,7 +32,7 @@ export default function LoginForm() {
       return;
     }
 
-    const response = await actions.login(form.emailLogin, form.passwordLogin);
+    const response = await dispatch(login(form.emailLogin, form.passwordLogin));
 
     if (!response.success) {
       setBackendError(response.message);

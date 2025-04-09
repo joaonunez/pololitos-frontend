@@ -1,18 +1,19 @@
-import { useContext, useState } from "react";
-import { Context } from "../../store/context";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import pololitosLogoWhite from "../../assets/img/pololitos-logo-white.png";
 import defaultProfileImage from "../../assets/img/default-profile-image.png";
+import { logout } from "../../store/user/userSlice";
 
 export default function NavigationBar() {
-  const { store, actions } = useContext(Context);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = store;
+  const user = useSelector((state) => state.user.currentUser);
 
   const [search, setSearch] = useState("");
 
   const handleLogout = () => {
-    actions.logout();
+    dispatch(logout());
     navigate("/login");
   };
 
@@ -20,12 +21,9 @@ export default function NavigationBar() {
     e.preventDefault();
     if (search.trim() === "") return;
 
-    const result = await actions.searchServices(search.trim(), 0, 8);
-    if (result.success) {
-      navigate("/search-results", { state: { results: result.data } });
-    } else {
-      console.error("No se encontraron resultados o hubo un error.");
-    }
+    // ⚠️ Aquí deberás migrar también searchServices a Redux más adelante.
+    // Por ahora, puedes mantenerlo externo si aún no migras esa parte.
+    console.warn("🔍 Buscador aún no migrado a Redux.");
   };
 
   return (

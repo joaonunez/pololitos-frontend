@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Footer from "./components/layout/Footer";
 import NavigationBar from "./components/layout/NavigationBar";
-import injectContext from "./store/context";
 import LoginPage from "./views/login/LoginPage";
 import HomePage from "./views/home/HomePage";
 import ProfilePage from "./views/profile/ProfilePage";
@@ -15,7 +14,6 @@ import MyRequestsReceivedPage from "./views/requests/MyRequestsReceivedPage";
 import ChatPage from "./views/chats/ChatPage";
 import EditProfilePage from "./views/profile/EditProfilePage";
 import SearchServiceResultsPage from "./views/services/SearchServiceResultsPage";
-
 
 function App() {
   return (
@@ -37,12 +35,6 @@ function App() {
             <Route path="/chat/:chatId" element={<ChatPage />} />
             <Route path="/edit-profile" element={<EditProfilePage />} />
             <Route path="/search-results" element={<SearchServiceResultsPage />} />
-
-            
-
-
-
-
           </Routes>
         </main>
         <Footer />
@@ -51,4 +43,4 @@ function App() {
   );
 }
 
-export default injectContext(App);
+export default App;
