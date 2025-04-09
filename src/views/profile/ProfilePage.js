@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { Context } from "../../store/context";
+import { useSelector } from "react-redux"; // ⬅️ NUEVO
 import ProfileCard from "../../components/cards/ProfileCard";
 
-
 const ProfilePage = () => {
-  const { store } = useContext(Context); // Obtener el estado del store
+  const user = useSelector((state) => state.user.currentUser); 
   const navigate = useNavigate();
+
   const [userData, setUserData] = useState({
     profilePicture: '',
     firstName: '',
@@ -19,12 +18,12 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    if (!store.user) {
-        navigate('/login');
+    if (!user) {
+      navigate('/login');
     } else {
-      const { profilePicture, firstName, lastName, city, phone, email } = store.user;
+      const { profilePicture, firstName, lastName, city, phone, email } = user;
       setUserData({
-        profilePicture: profilePicture,
+        profilePicture,
         firstName,
         lastName,
         city,
@@ -32,9 +31,8 @@ const ProfilePage = () => {
         email,
       });
     }
-  }, [store.user, navigate]);
+  }, [user, navigate]);
 
-  // Confirmación de edición de perfil
   const confirmarEdicion = () => {
     Swal.fire({
       title: '¿Editar tu perfil?',
@@ -47,7 +45,7 @@ const ProfilePage = () => {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        window.location.href = '/edit-profile'; // Redirige a la página de edición
+        window.location.href = '/edit-profile';
       }
     });
   };

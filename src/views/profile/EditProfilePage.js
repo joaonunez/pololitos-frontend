@@ -1,12 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Context } from "../../store/context";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../../store/user/userActions";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export default function EditProfilePage() {
-  const { store, actions } = useContext(Context);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = store.user;
+
+  const user = useSelector((state) => state.user.currentUser);
 
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
@@ -70,7 +72,7 @@ export default function EditProfilePage() {
       dataToSend.append("profile_image_file", formData.profileImageFile);
     }
 
-    const result = await actions.updateProfile(dataToSend);
+    const result = await dispatch(updateProfile(dataToSend));
     if (result.success) {
       Swal.fire({
         icon: "success",

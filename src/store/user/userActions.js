@@ -36,40 +36,46 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 export const updateProfile = (formData) => async (dispatch, getState) => {
-  const token = getState().user.currentUser?.token;
-  if (!token) {
-    return { success: false, message: "No autenticado" };
-  }
-
-  try {
-    const response = await fetch(
-      "http://localhost:8000/api/users/profile/update",
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { success: false, message: errorText };
+    const token = getState().user.currentUser?.token;
+    if (!token) {
+      return { success: false, message: "No autenticado" };
     }
-
-    const data = await response.json();
-    const updatedUser = {
-      ...data,
-      token, // conserva el token
-    };
-
-    dispatch(updateUser(updatedUser));
-    return { success: true, data: updatedUser };
-  } catch (error) {
-    return { success: false, message: "Error inesperado" };
-  }
-};
+  
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/users/profile/update",
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        return { success: false, message: errorText };
+      }
+  
+      const data = await response.json();
+      const updatedUser = {
+        id: data.id,
+        email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
+        profilePicture: data.profile_picture || "",
+        phone: data.phone,
+        city: data.city,
+        token, // conserva el token
+      };
+  
+      dispatch(updateUser(updatedUser));
+      return { success: true, data: updatedUser };
+    } catch (error) {
+      return { success: false, message: "Error inesperado" };
+    }
+  };
 
 export const verifyToken = () => {
   const user = JSON.parse(localStorage.getItem("user"));
